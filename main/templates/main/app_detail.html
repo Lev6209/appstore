@@ -19,14 +19,18 @@
 
     <p>
         {% if app.price == 0 %}
-                Бесплатно
+                <strong>Бесплатно</strong>
             {% else %}
-                {{ app.price }} $
+                <strong>Цена: {{ app.price }} $</strong>
             {% endif %}
     </p>
 
-    <p>{{ app.description|default:"Описание пока не добавлено" }}</p>
-
+    {% if app.description %}
+        <p>Описание: {{ app.description }}</p>
+    {% else %}
+        <p>Описание пока не добавлено</p>
+    {% endif %}
+    
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
 
 

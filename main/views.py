@@ -27,7 +27,7 @@ def about(request):
 
 def app_detail(request, app_id):
     app = get_object_or_404(App, id=app_id)
-    similar_apps = App.objects.filter(price__gte=app.price - 30, price__lte=app.price + 30).exclude(id=app.id)[:3]
+    similar_apps = App.objects.filter(price__gte=app.price - 10, price__lte=app.price + 10).exclude(id=app.id)[:3]
     return render(request,'main/app_detail.html',{'app': app, 'similar_apps': similar_apps})
 
 
