@@ -1,0 +1,23 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Без категории — AppStore{% endblock %}
+
+{% block content %}
+    <h2>Приложения без категории</h2>
+
+    <ul>
+    {% for app in apps %}
+        <li>
+          {% if app.category_id == None %}
+            <a href="{% url 'app_detail' app.id %}">{{ app.name }}</a> –
+                Цена: {{ app.price }} $
+          {% endif %}
+            <br>
+        </li>
+    {% empty %}
+        <li>Приложений пока нет.</li>
+    {% endfor %}
+    </ul>
+
+    <p>Всего приложений: {{ apps|length }}</p>
+{% endblock %}

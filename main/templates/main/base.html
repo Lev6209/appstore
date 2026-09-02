@@ -10,9 +10,13 @@
     <h1>AppStore</h1>
 
     <nav>
-        <a href="{% url 'index' %}">Главная</a>
-        <a href="{% url 'new' %}">Новые приложения</a>
-        <a href="{% url 'about' %}">О магазине</a>
+        <a href="{% url 'index' %}"{% if request.path == '/' %}class="active"{% endif %}>Главная</a>
+        <a href="{% url 'new' %}"{% if request.path == '/new/' %}class="active"{% endif %}>Новые приложения</a>
+        <a href="{% url 'about' %}"{% if request.path == '/about/' %}class="active"{% endif %}>О магазине</a>
+        <a href="{% url 'free' %}"{% if request.path == '/free/' %}class="active"{% endif %}>Бесплатные приложения</a>
+        <a href="{% url 'top' %}"{% if request.path == '/top/' %}class="active"{% endif %}>Топ по цене</a>
+        <a href="{% url 'no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
+        <a href="{% url 'cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
 
     </nav>
 

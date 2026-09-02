@@ -29,4 +29,18 @@
 
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
 
+
+<li>
+    <p>Примерно за те же деньги:</p>
+
+    {% for similar in similar_apps %}
+        <div>
+            <h3><a href="{% url 'app_detail' similar.id %}">{{ similar.name }}</a></h3>
+            <p>Цена: {{ similar.price }}</p>
+        </div>
+    {% empty %}
+        <p>Похожих по цене приложений нет.</p>
+    {% endfor %}
+</li>
+
 {% endblock %}

@@ -8,15 +8,25 @@
 
     <h2>Категория: {{ category.name }}</h2>
 
+    <p><a href="{% url 'free_in_category' category.id %}">Бесплатные приложения этой категории</a></p>
+
+    {% if expensive %}
+        <li>
+            <p>Самое дорогое приложение в этой категории:</p>
+                <strong><a href="{% url 'app_detail' expensive.id %}"></a>{{ expensive.name }}</strong> -
+                Цена: {{ expensive.price }} $
+        </li>
+    {% endif %}
+
     <ul>
     {% for app in apps %}
-            <li>
-                <strong><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></strong> -
-                {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} ${% endif %}
-            </li>
-        {% empty %}
-            <li>В этой категории приложений пока нет.</li>
-        {% endfor %}
+        <li>
+            <strong><a href="{% url 'app_detail' app.id %}">{{ app.name }}</a></strong> -
+            {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} ${% endif %}
+        </li>
+    {% empty %}
+        <li>В этой категории приложений пока нет.</li>
+    {% endfor %}
     </ul>
 
     <p>Всего в категории {{ apps|length }} приложений.</p>
