@@ -1,21 +1,37 @@
+from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404
-
-from .models import App
-
-from .models import Category
-
+from .models import App, Category
+from django.db.models import Q
 from django.http import HttpResponse
 
-
-
-
+SORTS = {
+    'new': '-created_at',
+    'name': 'name',
+    'price': 'price',
+    'expensive': '-price',
+}
 
 def index(request):
-    apps = App.objects.order_by('-created_at').all()
+    q = request.GET.get('q', '')
+    sort = request.GET.get('sort', 'new')
+
+    if q:
+        apps = App.objects.filter(Q(name__icontains=q) | Q(description__icontains=q))
+    else:
+        apps = App.objects.all()
+
+    apps = apps.order_by(SORTS.get(sort, '-created_at'))
     featured = App.objects.order_by('-price').first()
     categories = Category.objects.all()
+
+    paginator = Paginator(apps, 3)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     return render(request, 'main/index.html', {
-        'apps': apps,
+        'q': q,
+        'sort': sort,
+        'page_obj': page_obj,
         'featured': featured,
         'categories': categories,
     })
@@ -62,6 +78,15 @@ def cheap(request):
     apps = App.objects.order_by('price').filter(price__lt=100, price__gt=0)[:10]
     return render(request, 'main/cheap.html', {'apps': apps})
 
+def archive_year(request, year):
+
+    return HttpResponse(f"Вы открыли архив за {year} год")
+
+def developer(request, developer_name):
+    return HttpResponse(f'Страница разработчика: {developer_name}')
+
+def secure_app(request, unique_key):
+    return HttpResponse(f'Защищенное приложение с уникальным ключом: {unique_key}')
 
 
-
+    

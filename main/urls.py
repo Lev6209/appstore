@@ -1,8 +1,8 @@
-from django.urls import path
+from django.urls import path, re_path
 
 from . import views
 
-
+app_name = 'main'
 urlpatterns = [
     path('', views.index, name='index'),
     path('about/', views.about, name='about'),
@@ -15,4 +15,9 @@ urlpatterns = [
     path('cheap/',views.cheap,name='cheap'),
     path('free/<int:category_id>/', views.free_in_category, name='free_in_category'),
 
+    re_path(r'archive/(?P<year>[0-9]{4})/$', views.archive_year, name='archive'),
+
+    path('developer/<str:developer_name>/', views.developer, name='developer'),
+
+    path('app/secure/<uuid:unique_key>/', views.secure_app, name='secure_app'),
 ]

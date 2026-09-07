@@ -26,3 +26,7 @@ li {
 .active {
     font-weight: bold;
 }
+
+form {
+    margin: 20px auto;
+}

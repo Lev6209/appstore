@@ -10,15 +10,24 @@
     <h1>AppStore</h1>
 
     <nav>
-        <a href="{% url 'index' %}"{% if request.path == '/' %}class="active"{% endif %}>Главная</a>
-        <a href="{% url 'new' %}"{% if request.path == '/new/' %}class="active"{% endif %}>Новые приложения</a>
-        <a href="{% url 'about' %}"{% if request.path == '/about/' %}class="active"{% endif %}>О магазине</a>
-        <a href="{% url 'free' %}"{% if request.path == '/free/' %}class="active"{% endif %}>Бесплатные приложения</a>
-        <a href="{% url 'top' %}"{% if request.path == '/top/' %}class="active"{% endif %}>Топ по цене</a>
-        <a href="{% url 'no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
-        <a href="{% url 'cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
+        <a href="{% url 'main:index' %}"{% if request.path == '/' %}class="active"{% endif %}>Главная</a>
+        <a href="{% url 'main:new' %}"{% if request.path == '/new/' %}class="active"{% endif %}>Новые приложения</a>
+        <a href="{% url 'main:about' %}"{% if request.path == '/about/' %}class="active"{% endif %}>О магазине</a>
+        <a href="{% url 'main:free' %}"{% if request.path == '/free/' %}class="active"{% endif %}>Бесплатные приложения</a>
+        <a href="{% url 'main:top' %}"{% if request.path == '/top/' %}class="active"{% endif %}>Топ по цене</a>
+        <a href="{% url 'main:no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
+        <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
 
     </nav>
+
+    <form method="GET" action="{% url 'main:index' %}">
+
+            <input type="text" name="q" placeholder="Поиск приложений..." value="{{ q }}">
+            {%  if request.GET.sort %}
+                <input type="hidden" name="sort" value="{{ request.GET.sort }}">
+            {% endif %}
+        <button type="submit">Найти</button>
+    </form>
 
     {% block content %}{% endblock %}
 </body>
