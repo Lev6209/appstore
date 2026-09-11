@@ -1,4 +1,4 @@
-from django.urls import path, re_path
+from django.urls import path, register_converter
 
 from . import views
 
@@ -14,8 +14,6 @@ urlpatterns = [
     path('no_category/',views.no_category,name='no_category'),
     path('cheap/',views.cheap,name='cheap'),
     path('free/<int:category_id>/', views.free_in_category, name='free_in_category'),
-
-    re_path(r'archive/(?P<year>[0-9]{4})/$', views.archive_year, name='archive'),
 
     path('developer/<str:developer_name>/', views.developer, name='developer'),
 
