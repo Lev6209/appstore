@@ -18,6 +18,8 @@
         <a href="{% url 'main:no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
 
+        <a href="{% url 'main:free_apps' %}"{% if request.path == '/free_apps/' %} class="active"{% endif %}>Бесплатные</a>
+        <a href="{% url 'main:paid_apps' %}"{% if request.path == '/paid_apps/' %} class="active"{% endif %}>Платные</a>
     </nav>
 
     <form method="GET" action="{% url 'main:index' %}">
