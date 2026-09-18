@@ -10,9 +10,14 @@ def store_menu(request):
         .annotate(apps_count=Count('app')).filter(apps_count__gt=0)
         .order_by('name')
     )
+
+    featured = App.objects.order_by('-price').first()
+
     return {
         'categories': categories,
         'apps_total': App.objects.count(),
         'categories_total': len(categories),
         'reviews_total': Review.objects.count(),
+        'featured': featured,
+
     }
