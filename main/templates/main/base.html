@@ -17,23 +17,11 @@
         <a href="{% url 'main:top' %}"{% if request.path == '/top/' %}class="active"{% endif %}>Топ по цене</a>
         <a href="{% url 'main:no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
-
-        <a href="{% url 'main:free_apps' %}"{% if request.path == '/free_apps/' %} class="active"{% endif %}>Бесплатные</a>
-        <a href="{% url 'main:paid_apps' %}"{% if request.path == '/paid_apps/' %} class="active"{% endif %}>Платные</a>
+        <a href="{% url 'main:free_apps' %}"{% if request.path == '/free_apps/' %}class="active"{% endif %}>Бесплатные</a>
+        <a href="{% url 'main:paid_apps' %}"{% if request.path == '/paid_apps/' %}class="active"{% endif %}>Платные</a>
     </nav>
 
-    <p class="categories-nav">
-        Категории:
-        {% for category in categories %}
-            <a href="{% url 'main:category' category.id %}"
-               {% if request.resolver_match.url_name == 'category' and request.resolver_match.kwargs.category_id == category.id %}class="active"{% endif %}>
-                {{ category.name }}
-            </a>
-            ({{ category.apps_count }}){% if not forloop.last %} · {% endif %}
-        {% empty %}
-            пока нет
-        {% endfor %}
-    </p>
+    {% include 'main/includes/categories_nav.html' %}
 
     <form method="GET" action="{% url 'main:index' %}">
 
@@ -46,6 +34,6 @@
 
     {% block content %}{% endblock %}
 
-    <footer> Всего на сайте: категорий: {{ categories_total }} и {{ apps_total }} приложений</footer>
+    <footer> Всего на сайте: категорий: {{ categories_total }}, приложений: {{ apps_total }} и отзывов: {{ reviews_total }}</footer>
 </body>
 </html>
