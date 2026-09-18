@@ -34,17 +34,54 @@
     <p>Добавлено: {{ app.created_at|date:"d.m.Y H:i" }}</p>
 
 
-<li>
-    <p>Примерно за те же деньги:</p>
+    <li>
+        <p>Примерно за те же деньги:</p>
 
-    {% for similar in similar_apps %}
-        <div>
-            <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
-            <p>Цена: {{ similar.price }}</p>
-        </div>
+        {% for similar in similar_apps %}
+            <div>
+                <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
+                <p>Цена: {{ similar.price }}</p>
+            </div>
+        {% empty %}
+            <p>Похожих по цене приложений нет.</p>
+        {% endfor %}
+    </li>
+
+    <section>
+    <h2>Оставить отзыв</h2>
+
+    <form method="post" action="{% url 'main:add_review' app.id %}">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+
+        <button type="submit">Отправить отзыв</button>
+    </form>
+</section>
+
+    <section>
+    <h2>Отзывы ({{ reviews|length }})</h2>
+
+    {% for review in reviews %}
+        <article>
+            <p>
+                <strong>{{ review.username }}</strong>
+                — оценка: {{ review.stars }}/5
+                —
+                {% if review.recommended %}
+                    Рекомендует
+                {% else %}
+                    Не рекомендует
+                {% endif %}
+            </p>
+            {% if review.comment %}
+                <p>{{ review.comment }}</p>
+            {% endif %}
+            <p><small>{{ review.created_at|date:"d.m.Y H:i" }}</small></p>
+        </article>
     {% empty %}
-        <p>Похожих по цене приложений нет.</p>
+        <p>Отзывов пока нет. Будьте первым!</p>
     {% endfor %}
-</li>
+</section>
 
 {% endblock %}

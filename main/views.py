@@ -1,12 +1,12 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
-from .models import App, Category
+from .models import App, Category, Review
+from .forms import ReviewForm
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
-from django.views.decorators.http import require_GET
-
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, DetailView
 
 
@@ -39,7 +39,6 @@ def index(request):
         'sort': sort,
         'page_obj': page_obj,
         'featured': featured,
-        'categories': categories,
     })
 
 
@@ -74,18 +73,69 @@ class AppDetailView(DetailView):
             )
             .exclude(id=app.id)[:3]
         )
+        context['form'] = ReviewForm()
+        context['reviews'] = app.review_set.order_by('-created_at')
         return context
 
 
-def category_detail(request, category_id):
-    category = get_object_or_404(Category, id=category_id)
-    apps = App.objects.filter(category=category)
-    expensive = App.objects.filter(price__isnull=False, price__gt=0,category=category).order_by('-price').first()
-    return render(request, 'main/category.html', {
-        'category': category,
-        'apps': apps,
-        'expensive': expensive
+@require_POST
+def add_review(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+    form = ReviewForm(request.POST)
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.app = app
+        review.save()
+        return redirect('main:app_detail', app_id=app.id)
+
+    reviews = app.review_set.order_by('-created_at')
+    similar_apps = (
+        App.objects.filter(
+            price__gte=app.price - 10,
+            price__lte=app.price + 10
+        )
+        .exclude(id=app.id)[:3]
+    )
+    return render(request, 'main/app_detail.html', {
+        'app': app,
+        'form': form,
+        'reviews': reviews,
+        'similar_apps': similar_apps,
     })
+
+
+# def category_detail(request, category_id):
+#     category = get_object_or_404(Category, id=category_id)
+#     apps = App.objects.filter(category=category)
+#     expensive = App.objects.filter(price__isnull=False, price__gt=0,category=category).order_by('-price').first()
+#     return render(request, 'main/category.html', {
+#         'category': category,
+#         'apps': apps,
+#         'expensive': expensive
+#     })
+
+class CategoryDetailView(ListView):
+    model = App
+    template_name = 'main/category.html'
+    context_object_name = 'apps'
+
+    def get_queryset(self):
+        category_id = self.kwargs.get('category_id')
+        return App.objects.filter(category_id=category_id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        category_id = self.kwargs.get('category_id')
+        category = Category.objects.get(id=category_id)
+        expensive = App.objects.filter(
+            price__isnull=False,
+            price__gt=0,
+            category_id=category_id
+        ).order_by('-price').first()
+
+        context['category'] = category
+        context['expensive'] = expensive
+        return context
 
 
 # def new(request):
@@ -126,16 +176,35 @@ def secure_app(request, unique_key):
     return HttpResponse(f'Защищенное приложение с уникальным ключом: {unique_key}')
 
 
-def apps_list(request,is_free):
-    if is_free:
-        apps = App.objects.filter(price=0)
-        title = "Бесплатные приложения"
-    else:
-        apps = App.objects.filter(price__gt=0)
-        title = "Платные приложения"
-    return render(request, 'main/apps_list.html', {'apps': apps, 'title': title})
+# def apps_list(request,is_free):
+#     if is_free:
+#         apps = App.objects.filter(price=0)
+#         title = "Бесплатные приложения"
+#     else:
+#         apps = App.objects.filter(price__gt=0)
+#         title = "Платные приложения"
+#     return render(request, 'main/apps_list.html', {'apps': apps, 'title': title})
 
 
+class AppsListView(ListView):
+    model = App
+    template_name = 'main/apps_list.html'
+    context_object_name = 'apps'
+
+    def get_queryset(self):
+        if self.kwargs['is_free']:
+            return App.objects.filter(price=0)
+        else:
+            return App.objects.filter(price__gt=0)
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.kwargs['is_free']:
+            context['title'] = 'Бесплатные приложения'
+        else:
+            context['title'] = 'Платные приложения'
+        return context
 
 def api_app_detail(request, app_id):
     app = get_object_or_404(App, id=app_id)
