@@ -1,5 +1,5 @@
 from django import forms
-from .models import Review
+from .models import Review, App
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -32,3 +32,14 @@ class ReviewForm(forms.ModelForm):
 
 
 
+class AppForm(forms.ModelForm):
+    class Meta:
+        model = App
+        fields = ['name', 'description', 'price', 'category', 'icon']
+        labels = {
+            'name': 'Название',
+            'description': 'Описание',
+            'price': 'Цена',
+            'category': 'Категория',
+            'icon': 'Иконка',
+        }

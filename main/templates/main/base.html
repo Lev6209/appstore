@@ -9,9 +9,7 @@
 <body>
     <h1>AppStore</h1>
 
-    {% if featured %}
-        <p>Приложение дня: <strong><a href="{% url 'main:app_detail' featured.id %}">{{ featured.name }}</a></strong></p>
-    {% endif %}
+
 
     <nav>
         <a href="{% url 'main:index' %}"{% if request.path == '/' %}class="active"{% endif %}>Главная</a>
@@ -23,6 +21,7 @@
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
         <a href="{% url 'main:free_apps' %}"{% if request.resolver_match.url_name == 'free_apps' %}class="active"{% endif %}>Бесплатные</a>
         <a href="{% url 'main:paid_apps' %}"{% if request.resolver_match.url_name == 'paid_apps' %}class="active"{% endif %}>Платные</a>
+        <a href="{% url 'main:add_app' %}">Добавить приложение</a>
     </nav>
 
 

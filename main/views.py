@@ -3,7 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from .models import App, Category, Review
-from .forms import ReviewForm
+from .forms import ReviewForm, AppForm
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
@@ -214,3 +214,15 @@ def api_app_detail(request, app_id):
         'price': app.price
     }
     return JsonResponse(data)
+
+def add_app(request):
+    if request.method == 'POST':
+        form = AppForm(request.POST, request.FILES)
+        if form.is_valid():
+            app = form.save()
+        return redirect('main:app_detail', app_id=app.id)
+    else:
+        form = AppForm()
+    return render(request, 'main/add_app.html', {'form': form})
+
+
