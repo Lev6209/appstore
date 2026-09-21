@@ -211,7 +211,8 @@ def api_app_detail(request, app_id):
         'id': app.id,
         'name': app.name,
         'description': app.description,
-        'price': app.price
+        'price': app.price,
+        'icon': app.icon.url if app.icon else None,
     }
     return JsonResponse(data)
 

@@ -13,7 +13,7 @@
     {% if expensive %}
         <li>
             <p>Самое дорогое приложение в этой категории:</p>
-                <strong><a href="{% url 'main:app_detail' expensive.id %}"></a>{{ expensive.name }}</strong> -
+            <strong><a href="{% url 'main:app_detail' expensive.id %}">{{ expensive.name }}</a> </strong> -
                 Цена: {{ expensive.price }} $
         </li>
     {% endif %}
@@ -21,7 +21,7 @@
     <ul>
     {% for app in apps %}
         <li>
-            <strong><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a></strong> -
+            {% include 'main/includes/app_list_item.html' %}
             {% if app.price == 0 %}Бесплатно{% else %}{{ app.price }} ${% endif %}
         </li>
     {% empty %}

@@ -1,5 +1,7 @@
 {% extends 'main/base.html' %}
 
+{% load static %}
+
 {% block title %}{{ app.name }} - AppStore{% endblock %}
 
 {% block content %}
@@ -11,7 +13,7 @@
     {% if app.icon %}
         <p><img src="{{ app.icon.url}}" alt="{{ app.name }}" class="app-icon-lg"></p>
     {% else %}
-        <p>Иконка пока не загружена</p>
+        <img src="{% static 'main/shop.png' %}" alt="Нет иконки" class="app-icon">
     {% endif %}
 
 
@@ -45,8 +47,13 @@
 
         {% for similar in similar_apps %}
             <div>
-                <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
-                <p>Цена: {{ similar.price }}</p>
+                {% if similar.icon %}
+                    <img src="{{ similar.icon.url }}" alt="" class="app-icon">
+                    {% else %}
+                        <img src="{% static 'main/shop.png' %}" alt="Нет иконки" class="app-icon">
+                    {% endif %}
+                    <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
+                    <p>Цена: {{ similar.price }}</p>
             </div>
         {% empty %}
             <p>Похожих по цене приложений нет.</p>

@@ -1,0 +1,9 @@
+{% load static %}
+
+{% if app.icon %}
+    <img src="{{ app.icon.url }}" alt="" class="app-icon">
+{% else %}
+    <img src="{% static 'main/shop.png' %}" alt="Нет иконки" class="app-icon">
+{% endif %}
+
+<a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a>

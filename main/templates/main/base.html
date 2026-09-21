@@ -9,8 +9,6 @@
 <body>
     <h1>AppStore</h1>
 
-
-
     <nav>
         <a href="{% url 'main:index' %}"{% if request.path == '/' %}class="active"{% endif %}>Главная</a>
         <a href="{% url 'main:new' %}"{% if request.path == '/new/' %}class="active"{% endif %}>Новые приложения</a>
@@ -20,8 +18,7 @@
         <a href="{% url 'main:no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
         <a href="{% url 'main:free_apps' %}"{% if request.resolver_match.url_name == 'free_apps' %}class="active"{% endif %}>Бесплатные</a>
-        <a href="{% url 'main:paid_apps' %}"{% if request.resolver_match.url_name == 'paid_apps' %}class="active"{% endif %}>Платные</a>
-        <a href="{% url 'main:add_app' %}">Добавить приложение</a>
+        <a href="{% url 'main:add_app' %}"{% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
     </nav>
 
 
