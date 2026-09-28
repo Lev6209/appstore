@@ -34,7 +34,7 @@ def index(request):
     else:
         apps = App.objects.all()
 
-    apps = apps.order_by(SORTS.get(sort, '-created_at'))
+    apps = apps.select_related('author').order_by(SORTS.get(sort, '-created_at'))
 
     categories = Category.objects.all()
 
@@ -240,7 +240,10 @@ def add_app(request):
     if request.method == 'POST':
         form = AppForm(request.POST, request.FILES)
         if form.is_valid():
-            app = form.save()
+            app = form.save(commit=False)
+            app.author = request.user
+            app.save()
+            messages.success(request, f"Приложение {app.name} опубликовано.")
         return redirect('main:app_detail', app_id=app.id)
     else:
         form = AppForm()
@@ -273,3 +276,25 @@ class StoreLoginView(LoginView):
 
 class StoreLogoutView(LogoutView):
     next_page = reverse_lazy('main:index')
+
+@login_required
+def my_apps(request):
+    apps = App.objects.filter(author=request.user).order_by('-created_at')
+    return render(request, 'main/my_apps.html', {'apps': apps})
+
+@login_required
+def edit_app(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+    if not request.user.is_staff and app.author_id != request.user.id:
+        messages.error(request, 'Редактировать карточку приложения может только его автор')
+        return redirect('main:app_detail', app_id=app.id)
+
+    if request.method == 'POST':
+        form = AppForm(request.POST, request.FILES, instance=app)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Карточка приложения {app.name} обновлена успешно.")
+            return redirect('main:app_detail', app_id=app.id)
+    else:
+        form = AppForm(instance=app)
+    return render(request, 'main/edit_app.html', {'form': form, 'app': app})

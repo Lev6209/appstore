@@ -34,6 +34,13 @@
             {% else %}
                 {{ app.price }} $
             {% endif %}
+            <p>Автор:
+                {% if app.author %}
+                    {{ app.author.username }}
+                {% else %}
+                    не указан
+                {% endif %}
+            </p>
             <br>
             добавлено {{ app.created_at|date:"d.m.Y" }}
         </li>

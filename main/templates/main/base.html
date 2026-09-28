@@ -19,7 +19,9 @@
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
         <a href="{% url 'main:free_apps' %}"{% if request.resolver_match.url_name == 'free_apps' %}class="active"{% endif %}>Бесплатные</a>
 
+
         {% if user.is_authenticated %}
+            <a href="{% url 'main:my_apps' %}">Мои приложения</a>
             <a href="{% url 'main:add_app' %}" {% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
             <span>Вы вошли как <strong>{{ user.username }}</strong></span>
             <form method="post" action="{% url 'main:logout' %}" style="display: inline;">
@@ -52,8 +54,6 @@
     </form>
 
     {% block content %}{% endblock %}
-
-    <p>Пользователь: {{ user }}/ сделан ли вход: {{ user.is_authenticated }}</p>
 
     <footer> Всего на сайте: категорий: {{ categories_total }}, приложений: {{ apps_total }} и отзывов: {{ reviews_total }}</footer>
 </body>
