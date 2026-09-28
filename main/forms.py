@@ -1,4 +1,7 @@
 from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
 from .models import Review, App
 
 class ReviewForm(forms.ModelForm):
@@ -16,7 +19,7 @@ class ReviewForm(forms.ModelForm):
                 'placeholder': 'Как вас зовут?'
             }),
             'comment': forms.Textarea(attrs={
-                'rows': '3', 'placeholder': 'Что вам понравилось иои не понравилось?'
+                'rows': '3', 'placeholder': 'Что вам понравилось или не понравилось?'
             }),
             'stars': forms.NumberInput(attrs={
                 'min': 1,
@@ -43,3 +46,14 @@ class AppForm(forms.ModelForm):
             'category': 'Категория',
             'icon': 'Иконка',
         }
+
+class RegisterForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ['username', 'password1', 'password2']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = "Имя пользователя"
+        self.fields['password1'].label = "Пароль"
+        self.fields['password2'].label = "Повтор пароля"

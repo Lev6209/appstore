@@ -18,9 +18,27 @@
         <a href="{% url 'main:no_category' %}"{% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
         <a href="{% url 'main:cheap' %}"{% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
         <a href="{% url 'main:free_apps' %}"{% if request.resolver_match.url_name == 'free_apps' %}class="active"{% endif %}>Бесплатные</a>
-        <a href="{% url 'main:add_app' %}"{% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
+
+        {% if user.is_authenticated %}
+            <a href="{% url 'main:add_app' %}" {% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
+            <span>Вы вошли как <strong>{{ user.username }}</strong></span>
+            <form method="post" action="{% url 'main:logout' %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">Выйти</button>
+            </form>
+        {% else %}
+            <a href="{% url 'main:login' %}">Войти</a>
+            <a href="{% url 'main:register' %}">Зарегистрироваться</a>
+        {% endif %}
     </nav>
 
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
     {% include 'main/includes/categories_nav.html' %}
 
@@ -34,6 +52,8 @@
     </form>
 
     {% block content %}{% endblock %}
+
+    <p>Пользователь: {{ user }}/ сделан ли вход: {{ user.is_authenticated }}</p>
 
     <footer> Всего на сайте: категорий: {{ categories_total }}, приложений: {{ apps_total }} и отзывов: {{ reviews_total }}</footer>
 </body>
