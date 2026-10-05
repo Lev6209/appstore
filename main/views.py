@@ -1,17 +1,25 @@
 from urllib import response
 
+import form
 from django.core.paginator import Paginator
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from .models import App, Category, Review
-from .forms import ReviewForm, AppForm, RegisterForm
+from .forms import ReviewForm, AppForm, RegisterForm, EditForm
 from django.db.models import Q
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import (
+    LoginView,
+    LogoutView,
+    PasswordResetView,
+    PasswordResetDoneView,
+    PasswordResetConfirmView,
+    PasswordResetCompleteView,
+)
 from django.contrib import messages
 from django.urls import reverse_lazy
 
@@ -285,16 +293,93 @@ def my_apps(request):
 @login_required
 def edit_app(request, app_id):
     app = get_object_or_404(App, id=app_id)
-    if not request.user.is_staff and app.author_id != request.user.id:
+    if not (
+        request.user.has_perm('main.change_app')
+        or request.user.is_staff
+        or app.author_id == request.user.id
+    ):
         messages.error(request, 'Редактировать карточку приложения может только его автор')
         return redirect('main:app_detail', app_id=app.id)
 
     if request.method == 'POST':
         form = AppForm(request.POST, request.FILES, instance=app)
         if form.is_valid():
-            form.save()
+            app = form.save(commit=False)
+            app.author = request.user
+            app.save()
             messages.success(request, f"Карточка приложения {app.name} обновлена успешно.")
             return redirect('main:app_detail', app_id=app.id)
     else:
         form = AppForm(instance=app)
     return render(request, 'main/edit_app.html', {'form': form, 'app': app})
+
+@login_required
+def admin_edit_app(request, app_id):
+    app = get_object_or_404(App, id=app_id)
+
+    if not request.user.is_superuser:
+        messages.error(
+            request,
+            'Редактировать автора может только администратор'
+        )
+        return redirect('main:app_detail', app_id=app.id)
+
+    if request.method == 'POST':
+        form = EditForm(
+            request.POST,
+            request.FILES,
+            instance=app
+        )
+
+        if form.is_valid():
+            app = form.save()
+
+            messages.success(
+                request,
+                f"Карточка приложения {app.name} обновлена успешно."
+            )
+            return redirect('main:app_detail', app_id=app.id)
+
+    else:
+        form = EditForm(instance=app)
+
+    return render(
+        request,
+        'main/edit_app.html',
+        {
+            'form': form,
+            'app': app
+        }
+    )
+
+class StorePasswordResetView(PasswordResetView):
+    template_name = 'main/password_reset_form.html'
+    email_template_name = 'main/password_reset_email.html'
+    subject_template_name = 'main/password_reset_subject.txt'
+    success_url = reverse_lazy('main:password_reset_done')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['email'].label = 'Электронная почта'
+        return form
+
+
+class StorePasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'main/password_reset_done.html'
+
+
+class StorePasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'main/password_reset_confirm.html'
+    success_url = reverse_lazy('main:password_reset_complete')
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        if form is not None and 'new_password1' in form.fields:
+            form.fields['new_password1'].label = 'Новый пароль'
+            form.fields['new_password2'].label = 'Повтор пароль'
+        return form
+
+
+class StorePasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'main/password_reset_complete.html'
+

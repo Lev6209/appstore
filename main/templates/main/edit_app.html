@@ -7,7 +7,7 @@
 
     <p>Галочка clear удаляет иконку. Если не трогать, ничего не поменяется</p>
 
-    <form method="post" action="{% url 'main:edit_app'  app.id%}" enctype="multipart/form-data">
+    <form method="post" action="{% url 'main:admin_edit_app'  app.id%}" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Применить изменения</button>

@@ -28,10 +28,17 @@ urlpatterns = [
 
     path('app/<int:app_id>/edit/', views.edit_app, name='edit_app'),
 
+    path('app/<int:app_id>/admin-edit/',views.admin_edit_app,name='admin_edit_app'),
+
     path('my-apps/', views.my_apps, name='my_apps'),
 
     path('register/', views.register, name='register'),
     path('login/', views.StoreLoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
+
+    path('password-reset/', views.StorePasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', views.StorePasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.StorePasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/complete/', views.StorePasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
 ]
