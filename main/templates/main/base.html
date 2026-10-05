@@ -23,6 +23,7 @@
         {% if user.is_authenticated %}
             <a href="{% url 'main:my_apps' %}">Мои приложения</a>
             <a href="{% url 'main:add_app' %}" {% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
+            <a href="{% url 'main:favorites' %}">Избранные ({{ favorites_count }})</a>
             <span>Вы вошли как <strong>{{ user.username }}</strong></span>
             <form method="post" action="{% url 'main:logout' %}" style="display: inline;">
                 {% csrf_token %}

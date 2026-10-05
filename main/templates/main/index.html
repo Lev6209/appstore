@@ -43,6 +43,14 @@
             </p>
             <br>
             добавлено {{ app.created_at|date:"d.m.Y" }}
+        {% if user.is_authenticated %}
+            {% if app.id in favorite_ids %}
+                <p>В избранном</p>
+            {% else %}
+                <p>Не в избранном</p>
+            {% endif %}
+        {% endif %}
+
         </li>
     {% empty %}
         <li>Приложений пока нет.</li>
