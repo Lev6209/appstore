@@ -107,6 +107,14 @@
     <section>
     <h2>Отзывы ({{ reviews|length }})</h2>
 
+    <p>
+        {% if app.rating_count %}
+            Средняя оценка: {{ app.rating_avg }} из 5 (Озывов: {{ app.rating_count }})
+        {% else %}
+            Оценок пока нету
+        {% endif %}
+    </p>
+
     {% for review in reviews %}
         <article>
             <p>

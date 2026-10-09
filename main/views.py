@@ -42,7 +42,12 @@ def index(request):
     else:
         apps = App.objects.all()
 
-    apps = apps.select_related('author').order_by(SORTS.get(sort, '-created_at'))
+    apps = apps.select_related('author')
+    if sort == 'rating':
+        apps = apps.order_by('-rating_avg', '-rating_count', 'name')
+    else:
+        apps = apps.order_by(SORTS.get(sort, 'created_at'))
+
 
     categories = Category.objects.all()
 
@@ -389,7 +394,7 @@ class StorePasswordResetConfirmView(PasswordResetConfirmView):
         form = super().get_form(form_class)
         if form is not None and 'new_password1' in form.fields:
             form.fields['new_password1'].label = 'Новый пароль'
-            form.fields['new_password2'].label = 'Повтор пароль'
+            form.fields['new_password2'].label = 'Повтор пароля'
         return form
 
 
