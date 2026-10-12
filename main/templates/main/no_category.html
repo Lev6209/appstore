@@ -9,8 +9,8 @@
     {% for app in apps %}
         <li>
           {% if app.category_id == None %}
-            <a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a> –
-                Цена: {{ app.price }} $
+            <a href="{{ app.get_absolute_url }}">{{ app.name }}</a> –
+                Цена: {{ app.price_label }}
           {% endif %}
             <br>
         </li>

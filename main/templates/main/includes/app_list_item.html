@@ -6,4 +6,4 @@
     <img src="{% static 'main/shop.png' %}" alt="Нет иконки" class="app-icon">
 {% endif %}
 
-<a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a>
+<a href="{{ app.get_absolute_url }}">{{ app.name }}</a>

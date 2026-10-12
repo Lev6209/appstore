@@ -10,11 +10,7 @@
         <li>
             {% include 'main/includes/app_list_item.html' %}
                 Добавлено: {{ app.created_at|date:"d.m.Y" }}
-            {% if app.price == 0 %}
-                Бесплатно
-            {% else %}
-                {{ app.price }} $
-            {% endif %}
+            {{ app.price_label }}
             <br>
         </li>
     {% empty %}

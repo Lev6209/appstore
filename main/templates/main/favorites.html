@@ -11,8 +11,8 @@
     <ul>
     {% for app in apps %}
         <li>
-            <strong><a href="{% url 'main:app_detail' app.id %}">{{ app.name }}</a></strong>
-            - {% if app.price == 0 %}Бесплатно{% else %} {{ app.price }} $ {% endif %} -
+            <strong><a href="{{ app.get_absolute_url }}">{{ app.name }}</a></strong>
+            {{ app.price_label }}
             автор: {% if app.author %} {{ app.author.username }} {% else %} не указан {% endif %}
 
         </li>

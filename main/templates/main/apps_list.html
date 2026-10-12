@@ -14,13 +14,7 @@
 
             <p>{{ app.description|truncatechars:100 }}</p>
 
-            <p>
-                {% if app.price == 0 %}
-                    Бесплатно
-                {% else %}
-                    {{ app.price }} ₽
-                {% endif %}
-            </p>
+            <p>Цена: {{ app.price_label }}</p>
         </div>
     {% endfor %}
 {% else %}
