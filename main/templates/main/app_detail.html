@@ -25,13 +25,7 @@
         {% endif %}
     </p>
 
-    <p>
-        {% if app.price == 0 %}
-                <strong>Бесплатно</strong>
-            {% else %}
-                <strong>Цена: {{ app.price }} $</strong>
-            {% endif %}
-    </p>
+    <p><strong>Цена: {{ app.price_label }} $</strong></p>
 
     {% if app.description %}
         <p>Описание: {{ app.description }}</p>
@@ -79,6 +73,12 @@
                     {% endif %}
                     <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
                     <p>Цена: {{ similar.price }}</p>
+
+                    {% if similar.rating_count %}
+                        Оценка: {{ similar.rating_avg }} ({{ similar.rating_count }})
+                    {% else %}
+                        Нет оценок
+                    {% endif %}
             </div>
         {% empty %}
             <p>Похожих по цене приложений нет.</p>

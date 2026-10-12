@@ -8,26 +8,38 @@ from .models import App, Review
 
 def refresh_app_rating(app_id):
     stats = Review.objects.filter(app_id=app_id).aggregate(
-        avg = Avg('stars'),
+        avg=Avg('stars'),
         total=Count('id'),
     )
 
     total = stats['total'] or 0
+
     if stats['avg'] is None:
         rating = Decimal(0.0)
     else:
-        rating = Decimal(str(stats['avg'])).quantize(Decimal('0.1'), rounding=ROUND_HALF_UP)
+        rating = Decimal(str(stats['avg'])).quantize(
+            Decimal('0.1'),
+            rounding=ROUND_HALF_UP
+        )
+
+    latest = Review.objects.filter(app_id=app_id).order_by('-created_at').first()
+
+    if latest:
+        latest_review = latest.comment.strip()[:80]
+    else:
+        latest_review = ''
 
     App.objects.filter(pk=app_id).update(
         rating_avg=rating,
         rating_count=total,
+        latest_review=latest_review,
     )
 
 @receiver(post_save, sender=Review, dispatch_uid='main.review_saved_refresh_rating')
 def review_saved(sender, instance, **kwargs):
-        refresh_app_rating(instance.app_id)
+    refresh_app_rating(instance.app_id)
+
 
 @receiver(post_delete, sender=Review, dispatch_uid='main.review_deleted_refresh_rating')
 def review_deleted(sender, instance, **kwargs):
-        refresh_app_rating(instance.app_id)
-
+    refresh_app_rating(instance.app_id)

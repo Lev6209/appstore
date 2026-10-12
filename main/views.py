@@ -93,13 +93,7 @@ class AppDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         app = self.object
-        context['similar_apps'] = (
-            App.objects.filter(
-                price__gte=app.price - 10,
-                price__lte=app.price + 10
-            )
-            .exclude(id=app.id)[:3]
-        )
+        context['similar_apps'] = app.similar_by_price()
         form = ReviewForm()
         if self.request.user.is_authenticated and 'username' in form.fields:
             form.fields.pop('username')
@@ -125,19 +119,13 @@ def add_review(request, app_id):
         review.app = app
         review.save()
         messages.success(request,'Отзыв сохранён')
-        return redirect('main:app_detail', app_id=app.id)
+        return redirect(app.get_absolute_url())
 
     if request.user.is_authenticated and 'username' in form.fields:
         form.fields.pop('username')
 
     reviews = app.review_set.order_by('-created_at')
-    similar_apps = (
-        App.objects.filter(
-            price__gte=app.price - 10,
-            price__lte=app.price + 10
-        )
-        .exclude(id=app.id)[:3]
-    )
+    similar_apps = app.similar_by_price()
     return render(request, 'main/app_detail.html', {
         'app': app,
         'form': form,
@@ -265,17 +253,30 @@ def api_app_detail(request, app_id):
 def add_app(request):
     if request.method == 'POST':
         form = AppForm(request.POST, request.FILES)
+
         if form.is_valid():
             app = form.save(commit=False)
             app.author = request.user
             app.save()
-            messages.success(request, f"Приложение {app.name} опубликовано.")
-        return redirect('main:app_detail', app_id=app.id)
+
+            messages.success(
+                request,
+                f"Приложение {app.name} опубликовано."
+            )
+
+            return redirect(
+                'main:app_detail',
+                app_id=app.id
+            )
+
     else:
         form = AppForm()
-    return render(request, 'main/add_app.html', {'form': form})
 
-
+    return render(
+        request,
+        'main/add_app.html',
+        {'form': form}
+    )
 def register(request):
     if request.user.is_authenticated:
         return redirect('main:index')
@@ -412,7 +413,7 @@ def toggle_favorite(request, app_id):
 
     if not request.user.is_authenticated:
         login_url = reverse('main:login')
-        next_url = reverse('main:app_detail', args=[app_id])
+        next_url = app.get_absolute_url()
         return redirect(f'{login_url}?next={next_url}')
 
     if app.favorited_by.filter(pk=request.user.pk).exists():
@@ -423,3 +424,17 @@ def toggle_favorite(request, app_id):
         messages.success(request, f'{app.name} - добавлено в избранные')
 
     return redirect('main:app_detail', app_id=app.id)
+
+@login_required
+def sale(request):
+    if not request.user.is_staff:
+        messages.error(request, 'Распродажу запускает только персонал')
+        return redirect('main:index')
+
+    if request.method == 'POST':
+        updated = App.discount_paid(10)
+        messages.success(request, f'Скидка 10: применена к платным приложениям: {updated}')
+        return redirect('main:index')
+
+    paid_count = App.objects.filter(price__gt=0).count()
+    return render(request, 'main/sale.html', {'paid_count': paid_count})

@@ -21,6 +21,10 @@
 
 
         {% if user.is_authenticated %}
+            {%  if user.is_staff %}
+                <a href="{% url 'main:sale' %}">Распродажа</a>
+            {% endif %}
+
             <a href="{% url 'main:my_apps' %}">Мои приложения</a>
             <a href="{% url 'main:add_app' %}" {% if request.resolver_match.url_name == 'add_app' %}class="active"{% endif %}>Добавить приложение</a>
             <a href="{% url 'main:favorites' %}">Избранные ({{ favorites_count }})</a>
