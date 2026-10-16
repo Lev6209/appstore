@@ -178,15 +178,17 @@ class NewAppView(ListView):
     model = App
     template_name = 'main/new.html'
     context_object_name = 'apps'
-    ordering = ['-created_at']
     paginate_by = 3
+
+    def get_queryset(self):
+        return App.objects.newest()
 
 def top(request):
     apps = App.objects.order_by('-price').exclude(price=0)[:10]
     return render(request, 'main/top.html', {'apps': apps})
 
 def free(request):
-    apps = App.objects.filter(price=0)
+    apps = App.objects.free()
     return render(request, 'main/free.html', {'apps': apps})
 
 def free_in_category(request, category_id):
@@ -436,5 +438,35 @@ def sale(request):
         messages.success(request, f'Скидка 10: применена к платным приложениям: {updated}')
         return redirect('main:index')
 
-    paid_count = App.objects.filter(price__gt=0).count()
+    paid_count = App.objects.paid().count()
     return render(request, 'main/sale.html', {'paid_count': paid_count})
+
+
+@login_required
+def close_category(request, category_id):
+    source = get_object_or_404(Category, pk=category_id)
+    if not request.user.is_staff:
+        messages.error(request, 'Категорию закрывает только сотрудник магазина.')
+        return redirect('main:index')
+
+    targets = Category.objects.exclude(pk=source.pk).order_by('name')
+    if request.method == 'POST':
+        raw_target = request.POST.get('target_id', '')
+        if not str(raw_target).isdigit():
+            messages.error(request, 'Выберите категорию, в которую перенести приложения.')
+            return redirect('main:close_category', category_id=source.pk)
+        target = get_object_or_404(Category, pk=int(raw_target))
+        try:
+            moved = App.objects.move_to_category(source, target)
+        except ValueError as exc:
+            messages.error(request, str(exc))
+            return redirect('main:close_category', category_id=source.pk)
+        messages.success(request, f'Категория закрыта. Приложений перенесено: {moved}.')
+        return redirect('main:category', category_id=target.pk)
+
+    apps_count = App.objects.in_category(source).count()
+    return render(request, 'main/close_category.html', {
+        'source': source,
+        'targets': targets,
+        'apps_count': apps_count,
+    })

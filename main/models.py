@@ -1,4 +1,6 @@
-from django.db import models
+from unicodedata import category
+
+from django.db import models, transaction
 from django.contrib.auth.models import User
 
 from decimal import Decimal, ROUND_HALF_UP
@@ -6,7 +8,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db import models
+from django.db import models, transaction
 from django.urls import reverse
 
 
@@ -29,6 +31,33 @@ class Category(models.Model):
         verbose_name = "Категория"
         verbose_name_plural = "Категории"
 
+class AppQuerySet(models.QuerySet):
+    def free(self):
+        return self.filter(price=0)
+
+    def paid(self):
+        return self.filter(price__gt=0)
+
+    def cheap(self):
+        return self.paid().filter(price__lt=100)
+
+    def newest(self):
+        return self.order_by('-created_at')
+
+    def in_category(self, category):
+        return self.filter(category=category)
+
+
+class AppManager(models.Manager.from_queryset(AppQuerySet)):
+    def move_to_category(self, source, target):
+        if source.pk is None or target.pk is None or source.pk == target.pk:
+            raise ValueError('Нельзя переместить приложение в ту же категорию')
+        with transaction.atomic():
+            moved = self.model.objects.in_category(source).update(category=target)
+            source.delete()
+        return moved
+
+
 class App(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
@@ -41,6 +70,8 @@ class App(models.Model):
     rating_avg = models.DecimalField(max_digits=2, decimal_places=1, default=0, editable=False, verbose_name="Средняя оценка")
     rating_count = models.PositiveSmallIntegerField(default=0, editable=False, verbose_name="Число оценок")
     latest_review = models.CharField(max_length=80, blank=True, default='', editable=False)
+
+    objects = AppManager()
 
     def __str__(self):
         return self.name

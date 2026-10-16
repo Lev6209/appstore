@@ -8,6 +8,11 @@
 
     <h2>Категория: {{ category.name }}</h2>
 
+    {% if user.is_staff %}
+        <p><a href="{% url 'main:close_category' category.id %}">Закрыть категорию</a></p>
+    {% endif %}
+
+
     <p><a href="{% url 'main:free_in_category' category.id %}">Бесплатные приложения этой категории</a></p>
 
     {% if expensive %}

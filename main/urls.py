@@ -46,4 +46,6 @@ urlpatterns = [
 
     path('sale/', views.sale, name='sale'),
 
+    path('category/<int:category_id>/close', views.close_category, name='close_category'),
+
 ]

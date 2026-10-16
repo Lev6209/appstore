@@ -11,7 +11,6 @@ def refresh_app_rating(app_id):
         avg=Avg('stars'),
         total=Count('id'),
     )
-
     total = stats['total'] or 0
 
     if stats['avg'] is None:
