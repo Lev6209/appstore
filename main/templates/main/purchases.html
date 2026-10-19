@@ -1,0 +1,22 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Мои покупки — AppStore{% endblock %}
+
+{% block content %}
+    <h2>Мои покупки</h2>
+
+    <ul>
+        {% for purchase in purchases%}
+            <li>
+                <strong><a href="{{ purchase.app.get_absolute_url }}">{{ purchase.app.name }}</a></strong>
+                - Куплено: {{ purchase.purchased_at|date:"d,m.Y" }}
+                - Уплачено: {{ purchase.price_label }}
+                - Сейчас стоит: {{ purchase.app.price_label }}
+            </li>
+        {% empty %}
+            <li>Вы ничего не покупали</li>
+        {% endfor %}
+    </ul>
+
+    <p>Всего потрачено: {{ total|floatformat:2 }}</p>
+{% endblock %}

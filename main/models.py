@@ -1,3 +1,4 @@
+from typing import Any
 from unicodedata import category
 
 from django.db import models, transaction
@@ -71,6 +72,8 @@ class App(models.Model):
     rating_count = models.PositiveSmallIntegerField(default=0, editable=False, verbose_name="Число оценок")
     latest_review = models.CharField(max_length=80, blank=True, default='', editable=False)
 
+    buyers = models.ManyToManyField(User, related_name='purchased_apps', verbose_name='Купили')
+
     objects = AppManager()
 
     def __str__(self):
@@ -89,6 +92,11 @@ class App(models.Model):
             price__gt=self.price -10,
             price__lt=self.price + 10,
         ).exclude(pk=self.pk)[:3]
+
+    def purchase_of(self, user):
+        if not user.is_authenticated:
+            return None
+        return self.purchases.filter(user=user).first()
 
     @classmethod
     def discount_paid(cls, percent):
@@ -121,3 +129,37 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.username} > {self.app.name}"
+
+
+class Purchase(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='purchases')
+    app = models.ForeignKey(App, on_delete=models.CASCADE, related_name='purchases')
+    price_paid = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        validators=[validate_non_negative_price],
+        verbose_name='Уплачено'
+    )
+    purchased_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата покупки')
+
+    class Meta:
+        verbose_name = 'Покупка'
+        verbose_name_plural = 'Покупки'
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'app'], name='unique_purchase_user_app')
+        ]
+
+    def __init__(self, *args: Any, **kwargs: Any):
+        super().__init__(args, kwargs)
+        self.purchases = None
+
+    def __str__(self):
+        return f"{self.user} - {self.app}"
+
+    def price_label(self):
+        if self.price_paid == 0:
+            return "Бесплатно"
+        return f'{self.price_paid} $'
+
+
+

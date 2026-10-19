@@ -47,5 +47,7 @@ urlpatterns = [
     path('sale/', views.sale, name='sale'),
 
     path('category/<int:category_id>/close', views.close_category, name='close_category'),
+    path('app/<int:app_id>/buy/', views.buy_app, name='buy_app'),
+    path('purchases/', views.purchases, name='purchases'),
 
 ]
