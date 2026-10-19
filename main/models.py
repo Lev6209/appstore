@@ -72,7 +72,12 @@ class App(models.Model):
     rating_count = models.PositiveSmallIntegerField(default=0, editable=False, verbose_name="Число оценок")
     latest_review = models.CharField(max_length=80, blank=True, default='', editable=False)
 
-    buyers = models.ManyToManyField(User, related_name='purchased_apps', verbose_name='Купили')
+    buyers = models.ManyToManyField(
+        User,
+        through='Purchase',
+        related_name='purchased_apps',
+        verbose_name='Купили',
+    )
 
     objects = AppManager()
 
@@ -148,10 +153,6 @@ class Purchase(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['user', 'app'], name='unique_purchase_user_app')
         ]
-
-    def __init__(self, *args: Any, **kwargs: Any):
-        super().__init__(args, kwargs)
-        self.purchases = None
 
     def __str__(self):
         return f"{self.user} - {self.app}"
