@@ -1,5 +1,5 @@
 {% extends 'main/base.html' %}
-
+{% load store_tags %}
 {% load static %}
 
 {% block title %}{{ app.name }} - AppStore{% endblock %}
@@ -126,7 +126,7 @@
 
     <p>
         {% if app.rating_count %}
-            Средняя оценка: {{ app.rating_avg }} из 5 (Озывов: {{ app.rating_count }})
+            Средняя оценка: {{ app.rating_avg|stars }} {{ app.rating_avg }} из 5 (Озывов: {{ app.rating_count }})
         {% else %}
             Оценок пока нету
         {% endif %}
@@ -136,7 +136,7 @@
         <article>
             <p>
                 <strong>{{ review.username }}</strong>
-                — оценка: {{ review.stars }}/5
+                — оценка: {{ review.stars|stars }}
                 —
                 {% if review.recommended %}
                     Рекомендует
