@@ -1,5 +1,5 @@
 {% extends 'main/base.html' %}
-
+{% load store_tags %}
 {% block title %}Дешевые — AppStore{% endblock %}
 
 {% block content %}
@@ -17,5 +17,5 @@
     {% endfor %}
     </ul>
 
-    <p>Всего приложений: {{ apps|length }}</p>
+    <p>Всего: {{ apps|length|apps_count }}</p>
 {% endblock %}

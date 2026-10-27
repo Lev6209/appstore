@@ -1,5 +1,7 @@
 {% load static %}
 
+{% load store_tags %}
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -62,6 +64,6 @@
 
     {% block content %}{% endblock %}
 
-    <footer> Всего на сайте: категорий: {{ categories_total }}, приложений: {{ apps_total }} и отзывов: {{ reviews_total }}</footer>
+    <footer> Всего на сайте: {{ categories_total|categories_count }}, {{ apps_total|apps_count }} и {{ reviews_total|reviews_count }}</footer>
 </body>
 </html>

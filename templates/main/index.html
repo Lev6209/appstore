@@ -34,7 +34,7 @@
             {{ app.price_label }}
             -
             {% if app.rating_count %}
-                Оценка: {{ app.rating_avg|stars }} {{ app.rating_avg }} ({{ app.rating_count }})
+                Оценка: {{ app.rating_avg|stars }} {{ app.rating_avg }} ({{ app.rating_count|reviews_count }})
             {% else %}
                 Нет оценок
             {% endif %}
@@ -83,7 +83,7 @@
 
     </p>
 
-    <p>Всего приложений на странице: {{ page_obj.paginator.count }}</p>
+    <p>Всего на сайте: {{ page_obj.paginator.count|apps_count }}</p>
 
 {% endblock %}
 
