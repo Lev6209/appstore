@@ -14,7 +14,12 @@
 
             <p>{{ app.description|truncatechars:100 }}</p>
 
-            <p>Цена: {{ app.price_label }}</p>
+            <p>
+                Цена: {{ app.price_label }}
+                {% if app.price_before_sale %}
+                    <s>{{ app.price_before_sale }} $</s>
+                {% endif %}
+            </p>
         </div>
     {% endfor %}
 {% else %}

@@ -80,3 +80,25 @@ class EditForm(forms.ModelForm):
             'author': 'Автор',
             'icon': 'Иконка',
         }
+
+
+class PriceFilterForm(forms.Form):
+    price_min = forms.DecimalField(label='Цена от', required=False)
+    price_max = forms.DecimalField(label='Цена до', required=False)
+    sort = forms.ChoiceField(
+        label='Порядок сортировки',
+        required=False,
+        choices=[
+            ('', 'по умолчанию'),
+            ('price', 'сначала дешевые'),
+            ('-price', 'сначала дорогие'),
+        ]
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        price_min = cleaned_data.get('price_min')
+        price_max = cleaned_data.get('price_max')
+        if price_min is not None and price_max is not None and price_min > price_max:
+            raise forms.ValidationError('Цена "от" не может быть больше цены "до"')
+        return cleaned_data

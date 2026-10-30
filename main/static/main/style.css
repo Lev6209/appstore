@@ -59,3 +59,9 @@ footer {
     vertical-align: middle;
     margin-right: 9px;
 }
+
+.price-filter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}

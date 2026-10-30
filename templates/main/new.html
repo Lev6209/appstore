@@ -13,6 +13,9 @@
             {% include 'main/includes/app_list_item.html' %}
                 Добавлено: {{ app.created_at|date:"d.m.Y" }}
             {{ app.price_label }}
+            {% if app.price_before_sale %}
+                <s>{{ app.price_before_sale }} $</s>
+            {% endif %}
             <br>
         </li>
     {% empty %}

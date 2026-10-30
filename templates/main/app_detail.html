@@ -25,7 +25,12 @@
         {% endif %}
     </p>
 
-    <p><strong>Цена: {{ app.price_label }}</strong></p>
+    <p>
+        <strong>Цена: {{ app.price_label }}</strong>
+        {% if app.price_before_sale %}
+            <s>{{ app.price_before_sale }} $</s>
+        {% endif %}
+    </p>
 
     {% if app.description %}
         <p>Описание: {{ app.description }}</p>
@@ -89,7 +94,12 @@
                         <img src="{% static 'main/shop.png' %}" alt="Нет иконки" class="app-icon">
                     {% endif %}
                     <h3><a href="{% url 'main:app_detail' similar.id %}">{{ similar.name }}</a></h3>
-                    <p>Цена: {{ similar.price }}</p>
+                    <p>
+                        Цена: {{ similar.price }}
+                        {% if similar.price_before_sale %}
+                            <s>{{ similar.price_before_sale }} $</s>
+                        {% endif %}
+                    </p>
 
                     {% if similar.rating_count %}
                         Оценка: {{ similar.rating_avg }} ({{ similar.rating_count }})

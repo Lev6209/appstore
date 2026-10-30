@@ -13,7 +13,7 @@ urlpatterns = [
 
 
     path('', views.index, name='index'),
-    path('category/<int:category_id>/', views.CategoryDetailView.as_view(), name='category'),
+    path('category/<int:category_id>/', views.category_detail, name='category'),
     path('top/',views.top,name='top'),
     path('free/',views.free,name='free'),
     path('no_category/',views.no_category,name='no_category'),

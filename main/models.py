@@ -63,12 +63,26 @@ class App(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=6, decimal_places=2, default=0, validators=[validate_non_negative_price])
+    price_before_sale = models.DecimalField(
+        max_digits=6,
+        decimal_places=2,
+        blank=True,
+        null=True,
+        editable=False,
+        verbose_name='Цена до распродажи'
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, null=True, blank=True)
     icon = models.ImageField(upload_to='icons/', blank=True)
     author = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='apps')
     favorited_by = models.ManyToManyField(User, related_name='favorite_apps', blank=True, verbose_name='В избранном у')
-    rating_avg = models.DecimalField(max_digits=2, decimal_places=1, default=0, editable=False, verbose_name="Средняя оценка")
+    rating_avg = models.DecimalField(
+        max_digits=2,
+        decimal_places=1,
+        default=0,
+        editable=False,
+        verbose_name="Средняя оценка"
+    )
     rating_count = models.PositiveSmallIntegerField(default=0, editable=False, verbose_name="Число оценок")
     latest_review = models.CharField(max_length=80, blank=True, default='', editable=False)
 
@@ -110,9 +124,20 @@ class App(models.Model):
         factor = (Decimal(100) - Decimal(percent)) / Decimal(100)
         paid = list(cls.objects.filter(price__gt=0))
         for app in paid:
-            app.price = (app.price * factor).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        return cls.objects.bulk_update(paid, ['price'])
+            if app.price_before_sale is None:
+                app.price_before_sale = app.price
+            app.price = (app.price * factor).quantize(
+                Decimal('0.01'),
+                rounding=ROUND_HALF_UP,
+            )
+        return cls.objects.bulk_update(paid, ['price', 'price_before_sale'])
 
+    @classmethod
+    def end_sale(cls):
+        return cls.objects.filter(price_before_sale__isnull=False).update(
+            price=models.F('price_before_sale'),
+            price_before_sale=None,
+        )
 
     class Meta:
         verbose_name = "Приложение"

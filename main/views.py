@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from .models import App, Category, Review, Purchase
-from .forms import ReviewForm, AppForm, RegisterForm, EditForm
+from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm
 from django.db.models import Q, Sum
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
@@ -137,43 +137,54 @@ def add_review(request, app_id):
     })
 
 
-# def category_detail(request, category_id):
-#     category = get_object_or_404(Category, id=category_id)
-#     apps = App.objects.filter(category=category)
-#     expensive = App.objects.filter(price__isnull=False, price__gt=0,category=category).order_by('-price').first()
-#     return render(request, 'main/category.html', {
-#         'category': category,
-#         'apps': apps,
-#         'expensive': expensive
-#     })
+def category_detail(request, category_id):
+    category = get_object_or_404(Category, id=category_id)
+    apps = App.objects.filter(category=category).defer('description')
+    form = PriceFilterForm(request.GET)
+    if form.is_valid():
+        price_min = form.cleaned_data['price_min']
+        price_max = form.cleaned_data['price_max']
+        if price_min is not None:
+            apps = apps.filter(price__gte=price_min)
+        if price_max is not None:
+            apps = apps.filter(price__lte=price_max)
+        if form.cleaned_data['sort']:
+            apps.order_by(form.cleaned_data['sort'])
 
-class CategoryDetailView(ListView):
-    model = App
-    template_name = 'main/category.html'
-    context_object_name = 'apps'
-
-    def get_queryset(self):
-        category_id = self.kwargs.get('category_id')
-        return App.objects.filter(category_id=category_id)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        category_id = self.kwargs.get('category_id')
-        category = Category.objects.get(id=category_id)
-        expensive = App.objects.filter(
-            price__isnull=False,
-            price__gt=0,
-            category_id=category_id
-        ).order_by('-price').first()
-
-        context['category'] = category
-        context['expensive'] = expensive
-        return context
+    return render(request, 'main/category.html', {
+        'category': category,
+        'apps': apps,
+        'form': form,
+    })
 
 
-# def new(request):
-#     apps = App.objects.order_by('-created_at')[:5]
-#     return render(request, 'main/new.html', {'apps': apps})
+# class CategoryDetailView(ListView):
+#     model = App
+#     template_name = 'main/category.html'
+#     context_object_name = 'apps'
+#
+#     def get_queryset(self):
+#         category_id = self.kwargs.get('category_id')
+#         return App.objects.filter(category_id=category_id)
+#
+#     def get_context_data(self, **kwargs):
+#         context = super().get_context_data(**kwargs)
+#         category_id = self.kwargs.get('category_id')
+#         category = Category.objects.get(id=category_id)
+#         expensive = App.objects.filter(
+#             price__isnull=False,
+#             price__gt=0,
+#             category_id=category_id
+#         ).order_by('-price').first()
+#
+#         context['category'] = category
+#         context['expensive'] = expensive
+#         return context
+
+
+def new(request):
+    apps = App.objects.order_by('-created_at')[:5]
+    return render(request, 'main/new.html', {'apps': apps})
 
 class NewAppView(ListView):
     model = App
@@ -435,6 +446,10 @@ def sale(request):
         return redirect('main:index')
 
     if request.method == 'POST':
+        if 'end_sale' in request.POST:
+            restored = App.end_sale()
+            messages.success(request, f'Распродажа завершена, цены возвращены: {restored}')
+            return redirect('main:index')
         updated = App.discount_paid(10)
         messages.success(request, f'Скидка 10: применена к платным приложениям: {updated}')
         return redirect('main:index')

@@ -13,6 +13,9 @@
                 <a href="{{ app.get_absolute_url }}">{{ app.name }}</a>
                 --
                 {{ app.price_label }}
+                {% if app.price_before_sale %}
+                    <s>{{ app.price_before_sale }} $</s>
+                {% endif %}
                 --
                 <a href="{% url 'main:edit_app' app.id %}">Редактировать</a>
             </li>

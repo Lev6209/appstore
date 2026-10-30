@@ -12,6 +12,9 @@
                 - Куплено: {{ purchase.purchased_at|date:"d,m.Y" }}
                 - Уплачено: {{ purchase.price_label }}
                 - Сейчас стоит: {{ purchase.app.price_label }}
+                {% if purchase.price_before_sale %}
+                    <s>{{ purchase.price_before_sale }} $</s>
+                {% endif %}
             </li>
         {% empty %}
             <li>Вы ничего не покупали</li>
