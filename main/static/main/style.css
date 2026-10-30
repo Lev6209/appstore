@@ -65,3 +65,7 @@ footer {
     align-items: center;
     gap: 10px;
 }
+
+.price-filter input {
+    width: 50px;
+}

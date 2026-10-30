@@ -15,16 +15,21 @@
 
     <form method="get">
 
-        {{ form.price_min.label_tag }}
-        {{ form.price_min }}
-        &nbsp;&nbsp;
-        {{ form.price_max.label_tag }}
-        {{ form.price_max }}
-        &nbsp;&nbsp;
-        {{ form.sort.label_tag }}
-        {{ form.sort }}
-        &nbsp;&nbsp;
-        <button type="submit">Подобрать</button>
+        {{ form.non_field_errors }}
+
+        <div class="price-filter">
+            {{ form.price_min.label_tag }}
+            {{ form.price_min }}
+            &nbsp;&nbsp;
+            {{ form.price_max.label_tag }}
+            {{ form.price_max }}
+            &nbsp;&nbsp;
+            {{ form.sort.label_tag }}
+            {{ form.sort }}
+            &nbsp;&nbsp;
+            <button type="submit">Подобрать</button>
+        </div>
+
     </form>
 
     <p><a href="{% url 'main:free_in_category' category.id %}">Бесплатные приложения этой категории</a></p>
