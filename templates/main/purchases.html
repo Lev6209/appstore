@@ -5,6 +5,26 @@
 {% block content %}
     <h2>Мои покупки</h2>
 
+    <form method="get" class="date-filter">
+        {{ form.non_field_errors }}
+
+        <div class="date-filter">
+            {{ form.date_min.label_tag }}
+            {{ form.date_min }}
+            &nbsp;&nbsp;
+            {{ form.date_max.label_tag }}
+            {{ form.date_max }}
+            &nbsp;&nbsp;
+            {{ form.sort.label_tag }}
+            {{ form.sort }}
+            &nbsp;&nbsp;
+            {{ form.contains.label_tag }}
+            {{ form.contains }}
+            <button type="submit">Подобрать</button>
+        </div>
+
+    </form>
+
     <ul>
         {% for purchase in purchases%}
             <li>

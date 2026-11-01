@@ -102,3 +102,40 @@ class PriceFilterForm(forms.Form):
         if price_min is not None and price_max is not None and price_min > price_max:
             raise forms.ValidationError('Цена "от" не может быть больше цены "до"')
         return cleaned_data
+
+
+class DateFilterForm(forms.Form):
+    date_min = forms.DateField(
+        label='Начальная дата:',
+        required=False,
+        input_formats=['%Y-%m-%d', '%d.%m.%Y'],
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+
+    date_max = forms.DateField(
+        label='Конечная дата:',
+        required=False,
+        input_formats=['%Y-%m-%d', '%d.%m.%Y'],
+        widget=forms.DateInput(attrs={'type': 'date'})
+    )
+    contains = forms.CharField(
+        label='Содержит:',
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Название товара/категории'
+        })
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+
+        date_min = cleaned_data.get('date_min')
+        date_max = cleaned_data.get('date_max')
+
+        if date_min is not None and date_max is not None:
+            if date_min > date_max:
+                raise forms.ValidationError(
+                    'Дата "от" не может быть позже даты "до"'
+                )
+
+        return cleaned_data

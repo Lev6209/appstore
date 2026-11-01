@@ -5,7 +5,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
 from .models import App, Category, Review, Purchase
-from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm
+from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm
 from django.db.models import Q, Sum
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
@@ -140,6 +140,12 @@ def add_review(request, app_id):
 def category_detail(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     apps = App.objects.filter(category=category).defer('description')
+    expensive = App.objects.filter(
+        price__isnull=False,
+        price__gt=0,
+        category_id=category_id
+    ).order_by('-price').first()
+
     form = PriceFilterForm(request.GET)
     if form.is_valid():
         price_min = form.cleaned_data['price_min']
@@ -149,11 +155,12 @@ def category_detail(request, category_id):
         if price_max is not None:
             apps = apps.filter(price__lte=price_max)
         if form.cleaned_data['sort']:
-            apps.order_by(form.cleaned_data['sort'])
+            apps = apps.order_by(form.cleaned_data['sort'])
 
     return render(request, 'main/category.html', {
         'category': category,
         'apps': apps,
+        'expensive': expensive,
         'form': form,
     })
 
@@ -511,14 +518,35 @@ def buy_app(request, app_id):
 
 @login_required
 def purchases(request):
+    form = DateFilterForm(request.GET)
     items = (
         Purchase.objects.filter(user=request.user)
         .select_related('app')
         .only('price_paid', 'purchased_at', 'app__name', 'app__price')
         .order_by('-purchased_at')
     )
+
+    if form.is_valid():
+        date_min = form.cleaned_data['date_min']
+        date_max = form.cleaned_data['date_max']
+        contains = form.cleaned_data['contains']
+
+        if date_min is not None:
+            items = items.filter(purchased_at__date__gte=date_min)
+
+        if date_max is not None:
+            items = items.filter(purchased_at__date__lte=date_max)
+
+        if contains:
+            items = items.filter(
+                Q(app__name__icontains=contains) |
+                Q(app__category__name__icontains=contains)
+            )
+
     total = items.aggregate(total=Sum('price_paid'))['total'] or 0
     return render(request, 'main/purchases.html', {
         'purchases': items,
         'total': total,
+        'form': form,
     })
+
