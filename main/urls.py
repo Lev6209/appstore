@@ -31,6 +31,7 @@ urlpatterns = [
     path('app/<int:app_id>/admin-edit/',views.admin_edit_app,name='admin_edit_app'),
 
     path('my-apps/', views.my_apps, name='my_apps'),
+    path('my-apps/prices/', views.my_prices, name='my_prices'),
 
     path('register/', views.register, name='register'),
     path('login/', views.StoreLoginView.as_view(), name='login'),
