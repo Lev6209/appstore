@@ -406,6 +406,9 @@ def admin_edit_app(request, app_id):
         )
 
         if form.is_valid():
+            app = form.save(commit=False)
+            if 'price' in form.changed_data:
+                app.price_before_sale = None
             app = form.save()
 
             messages.success(
