@@ -345,11 +345,16 @@ def my_prices(request):
     if request.method == 'POST':
         formset = AppPriceFormSet(request.POST, queryset=apps)
         if formset.is_valid():
+            removed_from_sale = 0
+
             for form in formset:
                 if 'price' in form.changed_data:
+                    if form.instance.price_before_sale is not None:
+                        removed_from_sale += 1
                     form.instance.price_before_sale = None
+
             saved = formset.save()
-            messages.success(request, f"Изменено карточек: {len(saved)}")
+            messages.success(request, f"Изменено карточек: {len(saved)}, снято с распродажи: {removed_from_sale}.")
             return redirect('main:my_apps')
     else:
         formset = AppPriceFormSet(queryset=apps)
