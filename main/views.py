@@ -10,6 +10,8 @@ from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm,
 from django.db.models import Q, Sum
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.cache import cache_page
+from django.views.decorators.vary import vary_on_cookie
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import (
@@ -22,7 +24,6 @@ from django.contrib.auth.views import (
 )
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
-
 from django.views.generic import TemplateView, ListView, DetailView
 
 
@@ -260,6 +261,7 @@ class AppsListView(ListView):
             context['title'] = 'Платные приложения'
         return context
 
+@cache_page(60 * 5)
 def api_app_detail(request, app_id):
     app = get_object_or_404(App, id=app_id)
     data = {
@@ -375,13 +377,30 @@ def edit_app(request, app_id):
     if request.method == 'POST':
         form = AppForm(request.POST, request.FILES, instance=app)
         if form.is_valid():
+            changed_fields = [
+                str(form.fields[field].label)
+                for field in form.changed_data
+            ]
+
             app = form.save(commit=False)
 
             if 'price' in form.changed_data:
                 app.price_before_sale = None
 
             app.save()
-            messages.success(request, f"Карточка приложения {app.name} обновлена успешно.")
+
+            if changed_fields:
+                fields_names = ', '.join(changed_fields)
+                messages.success(
+                    request,
+                    f'Карточка {app.name} изменена: {fields_names}'
+                )
+            else:
+                messages.info(
+                    request,
+                    'Вы ничего не изменили'
+                )
+
             return redirect('main:app_detail', app_id=app.id)
     else:
         form = AppForm(instance=app)
@@ -406,15 +425,30 @@ def admin_edit_app(request, app_id):
         )
 
         if form.is_valid():
+            changed_fields = [
+                str(form.fields[field].label)
+                for field in form.changed_data
+            ]
+
             app = form.save(commit=False)
+
             if 'price' in form.changed_data:
                 app.price_before_sale = None
-            app = form.save()
 
-            messages.success(
-                request,
-                f"Карточка приложения {app.name} обновлена успешно."
-            )
+            app.save()
+
+            if changed_fields:
+                fields_names = ', '.join(changed_fields)
+                messages.success(
+                    request,
+                    f'Карточка {app.name} изменена: {fields_names}'
+                )
+            else:
+                messages.info(
+                    request,
+                    'Вы ничего не изменили'
+                )
+
             return redirect('main:app_detail', app_id=app.id)
 
     else:
