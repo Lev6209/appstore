@@ -190,6 +190,50 @@ def category_detail(request, category_id):
 #         context['expensive'] = expensive
 #         return context
 
+CategoryFormSet = modelformset_factory(
+    Category,
+    fields=['name'],
+    labels={'name': 'Название категории'},
+    extra=0,
+    edit_only=True,
+)
+
+@login_required
+def edit_categories(request):
+
+    if not request.user.is_staff:
+        messages.error(
+            request,
+            'Редактировать категории может только персонал!'
+        )
+        return redirect('main:index')
+
+    categories = Category.objects.all().order_by('name')
+
+    if request.method == 'POST':
+        formset = CategoryFormSet(
+            request.POST,
+            queryset=categories
+        )
+
+        if formset.is_valid():
+            saved = formset.save()
+
+            messages.success(
+                request,
+                f'Переименовано категорий: {len(saved)}'
+            )
+            return redirect('main:index')
+
+    else:
+        formset = CategoryFormSet(queryset=categories)
+
+    return render(request, 'main/edit_categories.html', {
+        'formset': formset
+    })
+
+
+
 
 def new(request):
     apps = App.objects.order_by('-created_at')[:5]
@@ -335,8 +379,8 @@ def my_apps(request):
 
 AppPriceFormSet = modelformset_factory(
     App,
-    fields=['price'],
-    labels={'price': 'Цена'},
+    fields=['price', 'category'],
+    labels={'price': 'Цена', 'category': 'Категория'},
     extra=0,
     edit_only=True,
 )

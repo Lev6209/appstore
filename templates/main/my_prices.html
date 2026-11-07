@@ -10,6 +10,8 @@
         {{ formset.management_form }}
 
         {% for  form in formset %}
+            {{ form.id }}
+
             <h3>{{ form.instance.name }}</h3>
 
             {% if form.instance.price_before_sale %}
@@ -17,12 +19,22 @@
                     Новая цена снимет приложение с распродажи</p>
             {% endif %}
 
-            {{  form.as_p }}
+            <div style="display: flex; align-items: center; gap: 20px">
+                <div>
+                    {{ form.price.label_tag }}
+                    {{ form.price }}
+                </div>
+
+                <div>
+                    {{ form.category.label_tag }}
+                    {{ form.category }}
+                </div>
+            </div>
         {% empty %}
             <p>Вы еще не публиковали приложения</p>
         {% endfor %}
-
-        <button type="submit">Сохранить цены</button>
+        <br>
+        <button type="submit">Сохранить изменения</button>
     </form>
 
     <p><a href="{% url 'main:my_apps' %}">Назад к моим приложениям</a></p>
