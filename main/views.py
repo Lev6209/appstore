@@ -138,7 +138,8 @@ def add_review(request, app_id):
         'purchase': app.purchase_of(request.user),
     })
 
-
+@cache_page(60 * 2)
+@vary_on_cookie
 def category_detail(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     apps = App.objects.filter(category=category).defer('description')
