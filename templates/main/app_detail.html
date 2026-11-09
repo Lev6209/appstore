@@ -1,5 +1,6 @@
 {% extends 'main/base.html' %}
 {% load store_tags %}
+{% load bbcode_tags %}
 {% load static %}
 
 {% block title %}{{ app.name }} - AppStore{% endblock %}
@@ -33,7 +34,8 @@
     </p>
 
     {% if app.description %}
-        <p>Описание: {{ app.description }}</p>
+        <p>Описание: </p>
+        <div>{% bbcode app.description %}</div>
     {% else %}
         <p>Описание пока не добавлено</p>
     {% endif %}
@@ -81,7 +83,7 @@
     {% if user.is_authenticated %}
         {% if user.is_superuser %}
             <p><a href="{% url 'main:admin_edit_app' app.id %}">Редактировать</a></p>
-            
+
         {% elif perms.main.change_app or user.is_staff or app.author_id == user.id %}
             <p><a href="{% url 'main:edit_app' app.id %}">Редактировать</a></p>
         {% endif %}

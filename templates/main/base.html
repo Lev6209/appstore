@@ -1,11 +1,14 @@
 {% load static %}
-
+{% load django_bootstrap5 %}
 {% load store_tags %}
 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
+
+    {% bootstrap_css %}
+
     <link rel="stylesheet" href="{% static 'main/style.css' %}">
     <title>{% block title %}AppStore{% endblock %}</title>
 </head>
@@ -44,13 +47,7 @@
         {% endif %}
     </nav>
 
-    {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+   {% bootstrap_messages %}
 
     {% include 'main/includes/categories_nav.html' %}
 
@@ -64,7 +61,7 @@
     </form>
 
     {% block content %}{% endblock %}
-
+{% bootstrap_javascript %}
     <footer> Всего на сайте: {{ categories_total|categories_count }}, {{ apps_total|apps_count }} и {{ reviews_total|reviews_count }}</footer>
 </body>
 </html>
