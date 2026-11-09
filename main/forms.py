@@ -46,6 +46,14 @@ class AppForm(forms.ModelForm):
             'category': 'Категория',
             'icon': 'Иконка',
         }
+        help_texts = {
+            'description': (
+                'Для оформления текста используйте: '
+                '[b]текст[/b] — жирный шрифт, '
+                '[i]текст[/i] — курсив, '
+                '[list]...[/list] — список.'
+            ),
+        }
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField(label="Электронная почта")
