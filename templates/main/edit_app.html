@@ -1,5 +1,5 @@
 {% extends 'main/base.html' %}
-
+{% load django_bootstrap5 %}
 {% block title %}Редактировать {{ app.name }} — AppStore{% endblock %}
 
 {% block content %}
@@ -17,7 +17,7 @@
 
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% bootstrap_form form %} 
         <button type="submit">Применить изменения</button>
     </form>
 
