@@ -1,6 +1,8 @@
 {% extends 'main/base.html' %}
 {% load store_tags %}
+{% load django_bootstrap5 %}
 {% load bbcode_tags %}
+
 {% load static %}
 
 {% block title %}{{ app.name }} - AppStore{% endblock %}
@@ -130,9 +132,9 @@
     <form method="post" action="{% url 'main:add_review' app.id %}">
         {% csrf_token %}
 
-        {{ form.as_p }}
+        {% bootstrap_form form %}
 
-        <button type="submit">Отправить отзыв</button>
+        <button type="submit" class="btn btn-primary">Отправить отзыв</button>
     </form>
 </section>
 
@@ -160,7 +162,7 @@
                 {% endif %}
             </p>
             {% if review.comment %}
-                <p>{{ review.comment }}</p>
+                <div>{% bbcode review.comment %}</div>
             {% endif %}
             <p><small>{{ review.created_at|date:"d.m.Y H:i" }}</small></p>
         </article>

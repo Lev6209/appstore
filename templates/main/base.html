@@ -61,7 +61,9 @@
     </form>
 
     {% block content %}{% endblock %}
-{% bootstrap_javascript %}
+
     <footer> Всего на сайте: {{ categories_total|categories_count }}, {{ apps_total|apps_count }} и {{ reviews_total|reviews_count }}</footer>
+
+{% bootstrap_javascript %}
 </body>
 </html>

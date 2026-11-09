@@ -9,11 +9,20 @@ class ReviewForm(forms.ModelForm):
         model = Review
         fields = ['username','comment', 'stars', 'recommended']
         labels = {
-            'username': 'Yor name',
-            'comment': 'Text here',
-            'stars': 'Mark',
-            'recommended': 'Do you recommended this app?'
+            'username': 'Ваше имя',
+            'comment': 'Ваши комментарии:',
+            'stars': 'Ваша оценка приложения:',
+            'recommended': 'Порекомендовали бы вы это приложение?'
         }
+
+        help_texts = {
+            'comment': (
+                'Для выделения главного жирным шрифтом используйте теги '
+                '[b]плюсы[/b], '
+                '[b]минусы[/b]. '
+            ),
+        }
+
         widgets = {
             'username': forms.TextInput(attrs={
                 'placeholder': 'Как вас зовут?'
