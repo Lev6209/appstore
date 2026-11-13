@@ -15,9 +15,14 @@
         </p>
     {% endif %}
 
+    {% if app.icon %}
+        <p>Сейчас:</p>
+        <img src="{{ app.icon.url }}" alt="{{ app.name }}" class="app-icon">
+    {% endif %}
+
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        {% bootstrap_form form %} 
+        {% bootstrap_form form %}
         <button type="submit">Применить изменения</button>
     </form>
 

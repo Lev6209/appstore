@@ -62,6 +62,9 @@ class AppForm(forms.ModelForm):
                 '[i]текст[/i] — курсив, '
                 '[list]...[/list] — список.'
             ),
+            'icon':(
+                'Допустимые форматы: JPG, JPEG, PNG. Картинка будет уменьшена до размера 256×256 пикселей.'
+            )
         }
 
 class RegisterForm(UserCreationForm):
