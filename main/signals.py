@@ -67,3 +67,18 @@ def delete_app_icon(sender, instance, **kwargs):
 @receiver(post_delete, sender=Screenshot)
 def delete_screenshot_file(sender, instance, **kwargs):
     instance.image.delete(save=False)
+
+
+@receiver(post_delete, sender=Category)
+def delete_app_category(sender, instance, **kwargs):
+    if instance.icon:
+        instance.icon.delete(save=False)
+
+@receiver(pre_save, sender=Category)
+def delete_old_category_icon(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+    old = Category.objects.filter(pk=instance.pk).first()
+    if old and old.icon:
+        if old.icon.name != instance.icon.name:
+            old.icon.delete(save=False)

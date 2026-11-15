@@ -30,6 +30,15 @@ def icon_upload_to(instance, filename):
 
 class Category(models.Model):
     name = models.CharField(max_length=50)
+    icon = ThumbnailerImageField(
+        upload_to='categories/',
+        resize_source={'size': (32, 32)},
+        blank=True,
+        validators=[FileExtensionValidator(
+            allowed_extensions=['png', 'jpg', 'webp'],
+            message='Иконка должна быть в формате: png, jpg, или webp',
+        )]
+    )
 
     def __str__(self):
         return self.name
