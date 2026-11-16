@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, App, Review, Purchase, Screenshot
+from .models import Category, App, Review, Purchase, Screenshot, Profile
 
 admin.site.register(Category)
 admin.site.register(Review)
@@ -28,4 +28,6 @@ class AppAdmin(admin.ModelAdmin):
 class PurchaseAdmin(admin.ModelAdmin):
     list_display = ('user', 'app', 'price_paid', 'purchased_at')
     list_filter = ('app', 'user')
-    
+
+
+admin.site.register(Profile)

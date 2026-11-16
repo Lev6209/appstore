@@ -5,8 +5,8 @@ from django.forms import modelformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
 from django.views import View
 
-from .models import App, Category, Review, Purchase
-from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm
+from .models import App, Category, Review, Purchase, Profile
+from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm, ProfileForm
 from django.db.models import Q, Sum
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
@@ -22,10 +22,11 @@ from django.contrib.auth.views import (
     PasswordResetConfirmView,
     PasswordResetCompleteView,
 )
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
-from django.views.generic import TemplateView, ListView, DetailView
-
+from django.contrib.auth.models import User
+from django.views.generic import TemplateView, ListView, DetailView, View, UpdateView
 
 SORTS = {
     'new': '-created_at',
@@ -666,3 +667,28 @@ def purchases(request):
         'form': form,
     })
 
+
+def dev_page(request, username):
+    developer = get_object_or_404(User, username=username)
+    apps = developer.apps.order_by('-created_at')
+    return render(request, 'main/dev_page.html', {
+        'developer': developer,
+        'apps': apps,
+    })
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        form = ProfileForm(instance=profile)
+        return render(request, 'main/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        profile, created = Profile.objects.get_or_create(user=request.user)
+        form = ProfileForm(request.POST, instance=profile)
+
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Профиль сохранен')
+            return redirect('main:dev_page', username=request.user.username)
+        return render(request, 'main/edit_profile.html', {'form': form})

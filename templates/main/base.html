@@ -33,6 +33,7 @@
             {% endif %}
 
             <a href="{% url 'main:my_apps' %}" {% if request.path == '/my-apps/' %}class="active"{% endif %}>Мои приложения</a>
+            <a href="{% url 'main:edit_profile' %}" {% if request.path == '/my-profile/' %}class="active"{% endif %}>Мой профиль</a>
             <a href="{% url 'main:purchases' %}" {% if request.path == '/purchases/' %}class="active"{% endif %}>Мои покупки</a>
             <a href="{% url 'main:add_app' %}" {% if request.path == '/add-app/' %}class="active"{% endif %}>Добавить приложение</a>
             <a href="{% url 'main:favorites' %}" {% if request.path == '/favorites/' %}class="active"{% endif %}>Избранные ({{ favorites_count }})</a>
