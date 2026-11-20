@@ -7,7 +7,7 @@ from django.views import View
 
 from .models import App, Category, Review, Purchase, Profile
 from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm, ProfileForm
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Count
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.cache import cache_page
@@ -671,9 +671,13 @@ def purchases(request):
 def dev_page(request, username):
     developer = get_object_or_404(User, username=username)
     apps = developer.apps.order_by('-created_at')
+
+    sold_count = Purchase.objects.filter(app__author=developer).count()
+
     return render(request, 'main/dev_page.html', {
         'developer': developer,
         'apps': apps,
+        'sold_count': sold_count,
     })
 
 
@@ -692,3 +696,17 @@ class EditProfileView(LoginRequiredMixin, View):
             messages.success(request, 'Профиль сохранен')
             return redirect('main:dev_page', username=request.user.username)
         return render(request, 'main/edit_profile.html', {'form': form})
+
+
+class DevelopersView(View):
+    def get(self, request):
+        developers = User.objects.annotate(
+            apps_count=Count('apps')
+        ).filter(
+            apps_count__gt=0
+        ).order_by('-apps_count')
+
+        return render(request, 'main/developers.html', {
+            'developers': developers
+        })
+

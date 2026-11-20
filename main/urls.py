@@ -53,8 +53,8 @@ urlpatterns = [
     path('purchases/', views.purchases, name='purchases'),
 
     re_path(r'^dev/(?P<username>[\w.@+-]+)/$', views.dev_page, name='dev_page'),
-    re_path(r'^dev/(?P<username>[\w.@+-]+)/$', views.dev_page, name='dev_page'),
-    path('my-profile/', views.EditProfileView.as_view(), name='edit_profile'),
 
+    path('my-profile/', views.EditProfileView.as_view(), name='edit_profile'),
+    path('devs/', views.DevelopersView.as_view(), name='developers'),
 
 ]

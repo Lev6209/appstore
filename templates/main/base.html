@@ -19,7 +19,7 @@
         <a href="{% url 'main:index' %}" {% if request.path == '/' %}class="active"{% endif %}>Главная</a>
         <a href="{% url 'main:new' %}" {% if request.path == '/new/' %}class="active"{% endif %}>Новые приложения</a>
         <a href="{% url 'main:about' %}" {% if request.path == '/about/' %}class="active"{% endif %}>О магазине</a>
-        <a href="{% url 'main:free' %}" {% if request.path == '/free/' %}class="active"{% endif %}>Бесплатные приложения</a>
+        <a href="{% url 'main:developers' %}" class="{% if request.resolver_match.url_name == 'developers' %}active{% endif %}">Разработчики</a>
         <a href="{% url 'main:top' %}" {% if request.path == '/top/' %}class="active"{% endif %}>Топ по цене</a>
         <a href="{% url 'main:no_category' %}" {% if request.path == '/no_category/' %}class="active"{% endif %}>Без категории</a>
         <a href="{% url 'main:cheap' %}" {% if request.path == '/cheap/' %}class="active"{% endif %}>Дешевые приложения</a>
