@@ -58,3 +58,13 @@ urlpatterns = [
     path('devs/', views.DevelopersView.as_view(), name='developers'),
 
 ]
+
+urlpatterns += [
+    path('api/apps/', views.api_apps, name='api_apps'),
+    path('api-v2/apps/<int:pk>/', views.ApiAppView.as_view(), name='api_app'),
+
+    path('api/devs/', views.api_devs, name='api_devs'),
+    path('api/devs/<int:user_id>/', views.api_devs, name='api_dev'),
+
+    path('api/apps/<int:app_id>/reviews/', views.AppReviewsAPIView.as_view(), name='api_app_reviews'),
+]

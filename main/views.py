@@ -1,10 +1,9 @@
-from urllib import response
 
 from django.core.paginator import Paginator
 from django.forms import modelformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
-from django.views import View
 
+from .serializers import AppSerializer, UserSerializer, ReviewSerializer
 from .models import App, Category, Review, Purchase, Profile
 from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm, ProfileForm
 from django.db.models import Q, Sum, Count
@@ -27,6 +26,15 @@ from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.models import User
 from django.views.generic import TemplateView, ListView, DetailView, View, UpdateView
+
+from rest_framework import status, generics, permissions
+from rest_framework.decorators import api_view
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.exceptions import PermissionDenied
+
+
 
 SORTS = {
     'new': '-created_at',
@@ -709,4 +717,83 @@ class DevelopersView(View):
         return render(request, 'main/developers.html', {
             'developers': developers
         })
+
+
+@api_view(['GET', 'POST'])
+def api_apps(request):
+    if request.method == 'POST':
+        serializer = AppSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(author=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    apps = App.objects.select_related('author').order_by('-created_at')
+    paginator = PageNumberPagination()
+    page = paginator.paginate_queryset(apps, request)
+    serializer = AppSerializer(page, many=True)
+
+    return paginator.get_paginated_response(serializer.data)
+
+
+class ApiAppView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = App.objects.all()
+    serializer_class = AppSerializer
+    permission_classes = [permissions.DjangoModelPermissionsOrAnonReadOnly]
+
+
+@api_view(['GET', 'POST', 'PATCH', 'DELETE'])
+def api_devs(request, user_id=None):
+    if request.method != 'GET' and not request.user.is_staff:
+        return Response({'detail': 'Менять пользователей может только персонал'}, status=status.HTTP_403_FORBIDDEN)
+
+    if user_id is None:
+        if request.method == 'POST':
+            serializer = UserSerializer(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        users = User.objects.filter(is_active=True).order_by('id')
+        paginator = PageNumberPagination()
+        page = paginator.paginate_queryset(users, request)
+        serializer = AppSerializer(page, many=True)
+
+        return paginator.get_paginated_response(serializer.data)
+
+    user = get_object_or_404(User, id=user_id)
+
+    if request.method == 'PATCH':
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'DELETE':
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class ReviewPagination(PageNumberPagination):
+    page_size = 5
+
+class AppReviewsAPIView(generics.ListCreateAPIView):
+    serializer_class = ReviewSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = ReviewPagination
+
+    def get_queryset(self):
+        return Review.objects.filter(
+            app_id=self.kwargs['app_id']
+        ).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        app = get_object_or_404(App, pk=self.kwargs['app_id'])
+
+        if app.author_id == self.request.user.id:
+            raise PermissionDenied('Вы не можете оставлять отзывы на собственные приложения.')
+
+        serializer.save(username=self.request.user.username, app=app)
 

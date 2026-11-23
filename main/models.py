@@ -35,8 +35,8 @@ class Category(models.Model):
         resize_source={'size': (32, 32)},
         blank=True,
         validators=[FileExtensionValidator(
-            allowed_extensions=['png', 'jpg', 'webp'],
-            message='Иконка должна быть в формате: png, jpg, или webp',
+            allowed_extensions=['png', 'jpg', 'jpeg', 'webp'],
+            message='Иконка должна быть в формате: png, jpg, jpeg или webp',
         )]
     )
 
