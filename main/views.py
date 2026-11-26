@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.forms import modelformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
 
-from .serializers import AppSerializer, UserSerializer, ReviewSerializer
+from .serializers import AppSerializer, UserSerializer, ReviewSerializer, PurchaseSerializer
 from .models import App, Category, Review, Purchase, Profile
 from .forms import ReviewForm, AppForm, RegisterForm, EditForm, PriceFilterForm, DateFilterForm, ProfileForm
 from django.db.models import Q, Sum, Count
@@ -29,11 +29,12 @@ from django.views.generic import TemplateView, ListView, DetailView, View, Updat
 
 from rest_framework import status, generics, permissions
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.exceptions import PermissionDenied
+from rest_framework.views import APIView
+
 
 
 
@@ -807,3 +808,22 @@ def api_me(request):
         'is_staff': request.user.is_staff,
     })
 
+
+class MyPurchasesAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        purchases = Purchase.objects.filter(
+            user=request.user
+        ).select_related('app').order_by('-purchased_at')
+
+        total = purchases.aggregate(
+            total=Sum('price_paid')
+        )['total'] or 0
+
+        serializer = PurchaseSerializer(purchases, many=True)
+
+        return Response({
+            'total': total,
+            'purchases': serializer.data
+        })

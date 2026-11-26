@@ -72,6 +72,7 @@ urlpatterns += [
     path('api/token/', TokenObtainPairView.as_view(), name='token'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/me/', views.api_me, name='api_me'),
+    path('api/my-purchases/',views.MyPurchasesAPIView.as_view(),name='api_my_purchases'),
 
 ]
 

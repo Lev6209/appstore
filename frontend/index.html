@@ -7,7 +7,7 @@
 <body>
     <h1>Витрина AppStore</h1>
 
-    <ul> id="apps" </ul>
+    <ul id="apps"></ul>
 
     <h2>Вход</h2>
     <form id="login">
@@ -16,35 +16,73 @@
         <button type="submit">Войти</button>
     </form>
     <p id="me"></p>
+    <div id="my-purchases"></div>
 
-<script>
-    const API = 'http://127.0.0.1:8001/api/'
-    fetch(API + 'apps/').then(response => response.json()).then(data => {
-        for (const app of data.results) {
-            const item = document.createElement('li')
-            item.textContent = app.name + '- ' + app.price;
-            document.getElementById('apps').append(item)
+    <script>
+        const API = 'http://127.0.0.1:8001/api/';
+
+        async function loadMyPurchases(token) {
+            const container = document.getElementById('my-purchases');
+
+            const response = await fetch(API + 'my-purchases/', {
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+            if (!response.ok) {
+                container.textContent = 'Не удалось загрузить покупки';
+                return;
+            }
+
+            const data = await response.json();
+
+            container.replaceChildren();
+
+            const title = document.createElement('h3');
+            title.textContent = 'Мои покупки';
+            container.appendChild(title);
+
+            for (const purchase of data.purchases) {
+                const item = document.createElement('p');
+                item.textContent =
+                    purchase.app_name + ' — ' + purchase.price_paid + ' $';
+                container.appendChild(item);
+            }
+
+            const total = document.createElement('p');
+            total.textContent = 'Всего потрачено: ' + data.total + ' $';
+            container.appendChild(total);
         }
-    });
 
-    document.getElementById('login').addEventListener('submit', async (event) => {
-        event.preventDefault();
-        const tokenResponse = await fetch(API + 'token/', {
-            method: 'POST',
-            body: new FormData(event.target),
-        });
-        if (!tokenResponse.ok) {
-            document.getElementById('me').textContent = 'Неверный логин или пароль';
-            return;
-        }
-        const tokens = await tokenResponse.json();
-        const meResponse = await fetch(API + 'me/', {
-            headers:{'Authorization': 'Bearer ' + tokens.access},
-        });
-        const me = meResponse.json();
-        document.getElementById('me').textContent = 'Вы вошли как ' + me.username;
-    });
+        fetch(API + 'apps/')
+            .then(response => response.json())
+            .then(data => {
+                for (const app of data.results) {
+                    const item = document.createElement('li');
+                    item.textContent = app.name + ' - ' + app.price;
+                    document.getElementById('apps').append(item);
+                }
+            });
 
-</script>
+        document.getElementById('login').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const tokenResponse = await fetch(API + 'token/', {
+                method: 'POST',
+                body: new FormData(event.target),
+            });
+            if (!tokenResponse.ok) {
+                document.getElementById('me').textContent = 'Неверный логин или пароль';
+                return;
+            }
+            const tokens = await tokenResponse.json();
+            const meResponse = await fetch(API + 'me/', {
+                headers: {'Authorization': 'Bearer ' + tokens.access},
+            });
+            const me = await meResponse.json();
+            document.getElementById('me').textContent = 'Вы вошли как ' + me.username;
+            await loadMyPurchases(tokens.access);
+        });
+    </script>
 </body>
 </html>

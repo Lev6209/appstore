@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 
-from .models import App, Review
+from .models import App, Review, Purchase
 
 class AppSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
@@ -29,3 +29,11 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = ['id', 'username', 'stars', 'comment', 'recommended', 'created_at',]
         read_only_fields = ['username']
+
+
+class PurchaseSerializer(serializers.ModelSerializer):
+    app_name = serializers.CharField(source='app.name', read_only=True)
+
+    class Meta:
+        model = Purchase
+        fields = ['app_name', 'price_paid', 'purchased_at']
