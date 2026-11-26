@@ -2,6 +2,8 @@ from django.urls import path, register_converter, re_path
 
 from . import views
 
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
 app_name = 'main'
 urlpatterns = [
 
@@ -67,4 +69,9 @@ urlpatterns += [
     path('api/devs/<int:user_id>/', views.api_devs, name='api_dev'),
 
     path('api/apps/<int:app_id>/reviews/', views.AppReviewsAPIView.as_view(), name='api_app_reviews'),
+    path('api/token/', TokenObtainPairView.as_view(), name='token'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('api/me/', views.api_me, name='api_me'),
+
 ]
+

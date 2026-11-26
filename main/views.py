@@ -28,7 +28,8 @@ from django.contrib.auth.models import User
 from django.views.generic import TemplateView, ListView, DetailView, View, UpdateView
 
 from rest_framework import status, generics, permissions
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
@@ -796,4 +797,13 @@ class AppReviewsAPIView(generics.ListCreateAPIView):
             raise PermissionDenied('Вы не можете оставлять отзывы на собственные приложения.')
 
         serializer.save(username=self.request.user.username, app=app)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def api_me(request):
+    return Response({
+        'id': request.user.id,
+        'username': request.user.username,
+        'is_staff': request.user.is_staff,
+    })
 
