@@ -1,0 +1,21 @@
+{% load store_tags %}
+
+<div class="card mb-2">
+    <div class="card-body">
+        {% is_new app as app_is_new %}
+
+        <a href="{{ app.get_absolute_url }}">{{ app.name }}</a>
+
+        {% if app_is_new %}
+            <span class="badge bg-success">Новинка</span>
+        {% endif %}
+
+        - {{ app.price_label }}
+        {% if app.price_before_sale %}
+            <s>{{ app.price_before_sale }}</s>
+            {% sale_percent app.price app.price_before_sale as discount %}
+            <span class="badge bg-danger">{{ discount }}</span>
+        {% endif %}
+        <div>{{ app.rating_avg|stars }}</div>
+    </div>
+</div>

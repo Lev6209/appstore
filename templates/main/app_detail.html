@@ -32,6 +32,7 @@
         <strong>Цена: {{ app.price_label }}</strong>
         {% if app.price_before_sale %}
             <s>{{ app.price_before_sale }} $</s>
+            {% sale_percent app.price app.price_before_sale %}
         {% endif %}
     </p>
 

@@ -1,4 +1,6 @@
 from django import template
+from datetime import timedelta
+from django.utils import timezone
 
 register = template.Library()
 
@@ -51,3 +53,15 @@ def apps_count(value):
         word = 'приложений'
 
     return f'{value} {word}'
+
+
+@register.simple_tag
+def sale_percent(price, old_price):
+    if not old_price:
+        return ''
+    percent = round(100 - price * 100 / old_price)
+    return f'-{percent}%'
+
+@register.simple_tag
+def is_new(app):
+    return app.created_at >= timezone.now() - timedelta(days=7)

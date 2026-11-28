@@ -11,13 +11,8 @@
     <ul>
     {% for app in apps %}
         <li>
-            <strong><a href="{{ app.get_absolute_url }}">{{ app.name }}</a></strong>
-            {{ app.price_label }}
-            {% if app.price_before_sale %}
-                <s>{{ app.price_before_sale }} $</s>
-            {% endif %}
+            {% include 'main/_app_card.html' %}
             автор: {% if app.author %} {{ app.author.username }} {% else %} не указан {% endif %}
-
         </li>
     {% empty %}
         <li>Приложений в избранном пока нет.</li>
